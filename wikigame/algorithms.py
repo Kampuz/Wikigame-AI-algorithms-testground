@@ -1,13 +1,30 @@
 from wikiQuery import get_links
 from print import print_exploration, print_summary
 from collections import deque
+import heapq
 
-def bfs(start, goal, max_depth):
-    queue = deque([[start]])
+# -------------------------
+# Generic search function
+# -------------------------
+def search(start, goal, max_depth, method="BFS"):
+    """
+    Generic search function for BFS or DFS.
+    """
+    if method.upper() == "BFS":
+        container = deque([[start]])
+        pop_func = container.popleft
+        append_func = container.append
+    elif method.upper() == "DFS":
+        container = [[start]]
+        pop_func = container.pop
+        append_func = container.append
+    else:
+        raise ValueError("Method must be BFS or DFS.")
+
     visited = set([start])
 
-    while queue:
-        path = queue.popleft()
+    while container:
+        path = pop_func()
         article = path[-1]
 
         print_exploration(path, goal)
@@ -21,17 +38,36 @@ def bfs(start, goal, max_depth):
         for neighbor in get_links(article):
             if neighbor not in visited:
                 visited.add(neighbor)
-                queue.append(path + [neighbor])
-                
+                append_func(path + [neighbor])
+
     return print_summary(False, [], len(visited))
 
+# -------------------------
+# Depth-Limited Search
+# -------------------------
+def dls(start, goal, limit):
+    return search(start, goal, max_depth=limit, method="DFS")
 
-def dfs(start, goal, max_depth):
-    stack = deque([[start]])
+# -------------------------
+# Iterative Deepening Search
+# -------------------------
+def ids(start, goal, max_depth):
+    for depth in range(1, max_depth + 1):
+        print(f"\n- IDS iteration with depth limit: {depth}")
+        path = search(start, goal, max_depth=depth, method="DFS")
+        if path:
+            return path
+    return None
+
+# -------------------------
+# Uniform Cost Search
+# -------------------------
+def ucs(start, goal, max_depth=float('inf')):
+    heap = [(0, [start])]  # (cost, path)
     visited = set([start])
 
-    while stack:
-        path = stack.pop()
+    while heap:
+        cost, path = heapq.heappop(heap)
         article = path[-1]
 
         print_exploration(path, goal)
@@ -45,6 +81,6 @@ def dfs(start, goal, max_depth):
         for neighbor in get_links(article):
             if neighbor not in visited:
                 visited.add(neighbor)
-                stack.append(path + [neighbor])
-    
+                heapq.heappush(heap, (cost + 1, path + [neighbor]))
+
     return print_summary(False, [], len(visited))

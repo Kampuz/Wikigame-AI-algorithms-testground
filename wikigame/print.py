@@ -1,6 +1,6 @@
 def print_exploration(path, target):
-    depth = len(path) -1
-    indent = "  " *depth
+    depth = len(path) - 1
+    indent = "  " * depth
     article = path[-1]
 
     if article == target:

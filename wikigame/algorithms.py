@@ -63,7 +63,7 @@ def ids(start, goal, max_depth):
 # Uniform Cost Search
 # -------------------------
 def ucs(start, goal, max_depth=float('inf')):
-    heap = [(0, [start])]  # (cost, path)
+    heap = [(0, [start])]
     visited = set([start])
 
     while heap:
